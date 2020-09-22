@@ -11,7 +11,7 @@ Well, this is just a custom installer ready to use, nothing special.
 Simply compile this, call it from a command line and pipe the output to a file to see what's happening.
 Ex: **SilentClickOnce.exe \\\\192.168.1.2\\apps\\MyApp\\MyApp.application > MyApp.log**
 
-Unfortunately I can't upload releases and I don't feel good making random people on the internet download an exe from my website hosted on a free web hosting service, sounds sketchy don't you think?
+Don't want to compile or can't? Download the release [here on GitHub](https://github.com/PaaaulZ/SilentClickOnce/releases/) and download the ready to use file.
 
 ## Why is this special?
 
