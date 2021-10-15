@@ -1,7 +1,7 @@
 # SilentClickOnce
-Install ClickOnce without prompting the user or showing anything
+Install/Uninstall ClickOnce without prompting the user
 
-## Need to install a ClickOnce .application without prompting the user? Maybe you want to push your application using your DC and you can't because ClickOnce needs the user to press "Install"? SilentClickOnce is what you need.
+## Need to install or uninstall a ClickOnce .application without prompting the user? Maybe you want to manage your application using your DC and you can't because ClickOnce needs the user to press "Install/Uninstall"? SilentClickOnce is what you need.
 
 Microsoft supports installing ClickOnce .application files silently by using a custom installer as noted in [the Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019).
 Well, this is just a custom installer ready to use, nothing special.
@@ -9,7 +9,9 @@ Well, this is just a custom installer ready to use, nothing special.
 ## How can I use it?
 
 Simply compile this, call it from a command line and pipe the output to a file to see what's happening.
-Ex: **SilentClickOnce.exe \\\\192.168.1.2\\apps\\MyApp\\MyApp.application > MyApp.log**
+
+Install example: **SilentClickOnce.exe -i "\\\\192.168.1.2\\apps\\MyApp\\MyApp.application" > MyApp.log**
+Uninstall example: **SilentClickOnce.exe -u MyApp > MyApp.log**
 
 Don't want to compile or can't? Download the release [here on GitHub](https://github.com/PaaaulZ/SilentClickOnce/releases/) and download the ready to use file.
 
