@@ -111,74 +111,27 @@ Public Class Form1
             Next
 
             Dim uninstallString As String = GetUninstallCommand(applicationName)
-            Dim fileName As String = uninstallString.Substring(0, uninstallString.IndexOf(" "))
-            Dim arguments As String = uninstallString.Substring(uninstallString.IndexOf(" ") + 1)
+            ' rundll32.exe dfshim.dll,ShArpMaintain DistintePfizer.application, Culture=neutral, PublicKeyToken=dad257947db44879, processorArchitecture=x86
+            Dim publicKeyToken As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {applicationName}.application, Culture=neutral, PublicKeyToken=", "")
+            publicKeyToken = publicKeyToken.Substring(0, publicKeyToken.IndexOf(","))
+            Dim processorArchitecture As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {applicationName}.application, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture=", "")
 
-            Dim pStartInfo As ProcessStartInfo = New ProcessStartInfo(fileName, arguments)
-            pStartInfo.UseShellExecute = False
+            Dim textualSubId As String = $"{applicationName}.application, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture={processorArchitecture}"
+            Dim deploymentServiceCom As New System.Deployment.Application.DeploymentServiceCom()
+            Dim _r_m_GetSubscriptionState As Reflection.MethodInfo = GetType(System.Deployment.Application.DeploymentServiceCom).GetMethod("GetSubscriptionState", System.Reflection.BindingFlags.NonPublic Or System.Reflection.BindingFlags.Instance)
+            Dim subState As Object = _r_m_GetSubscriptionState.Invoke(deploymentServiceCom, New Object() {textualSubId})
+            Dim subscriptionStore As Object = subState.GetType().GetProperty("SubscriptionStore").GetValue(subState)
+            subscriptionStore.GetType().GetMethod("UninstallSubscription").Invoke(subscriptionStore, New Object() {subState})
 
-            Dim proc As New Process() With {.StartInfo = pStartInfo}
-            proc.Start()
+            Console.WriteLine("[+] Succesfully uninstalled")
 
-            System.Threading.Thread.Sleep(3000)
-            FakeUserInteraction(applicationName)
-
+            Environment.Exit(0)
 
         Catch ex As Exception
-            Console.WriteLine("[-] Error uninstalling")
+            Console.WriteLine($"[-] Error uninstalling {ex.Message}")
+            Environment.Exit(1)
         End Try
     End Sub
-
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Ansi)>
-    Public Shared Function SetForegroundWindow(hwnd As IntPtr) As Boolean
-    End Function
-
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function PostMessage(ByVal hWnd As IntPtr, ByVal Msg As UInteger, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Boolean
-    End Function
-
-    Private Const WM_KEYDOWN As UInteger = &H100
-
-    Private Sub FakeUserInteraction(ByVal applicationName As String)
-
-        ' Press the OK button on the uninstall prompt
-
-        Dim wHandle As IntPtr = IntPtr.Zero
-
-        For i = 0 To 249 And wHandle = IntPtr.Zero Step 1
-            System.Threading.Thread.Sleep(150)
-
-            For Each p As Process In Process.GetProcessesByName("dfsvc")
-                If Not String.IsNullOrEmpty(p.MainWindowTitle) And (p.MainWindowTitle.EndsWith(applicationName) Or p.MainWindowTitle.StartsWith(applicationName)) Then
-                    wHandle = p.MainWindowHandle
-                End If
-            Next
-            If wHandle <> IntPtr.Zero Then
-                Exit For
-            End If
-        Next
-
-        If wHandle = IntPtr.Zero Then
-            Return
-        End If
-
-        SetForegroundWindow(wHandle)
-        System.Threading.Thread.Sleep(100)
-        Const wparam = 0 << 29 Or 0
-
-        PostMessage(wHandle, WM_KEYDOWN, (Keys.Shift Or Keys.Tab), CType(wparam, IntPtr))
-        PostMessage(wHandle, WM_KEYDOWN, (Keys.Shift Or Keys.Tab), CType(wparam, IntPtr))
-
-        PostMessage(wHandle, WM_KEYDOWN, Keys.Down, CType(wparam, IntPtr))
-
-        PostMessage(wHandle, WM_KEYDOWN, Keys.Tab, CType(wparam, IntPtr))
-
-        PostMessage(wHandle, WM_KEYDOWN, Keys.Enter, CType(wparam, IntPtr))
-
-
-
-    End Sub
-
 
     Private Function GetUninstallCommand(ByVal applicationName As String)
 
@@ -209,7 +162,6 @@ Public Class Form1
         Return Nothing
 
     End Function
-
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
