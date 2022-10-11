@@ -111,12 +111,19 @@ Public Class Form1
             Next
 
             Dim uninstallString As String = GetUninstallCommand(applicationName)
-            ' rundll32.exe dfshim.dll,ShArpMaintain DistintePfizer.application, Culture=neutral, PublicKeyToken=dad257947db44879, processorArchitecture=x86
-            Dim publicKeyToken As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {applicationName}.application, Culture=neutral, PublicKeyToken=", "")
-            publicKeyToken = publicKeyToken.Substring(0, publicKeyToken.IndexOf(","))
-            Dim processorArchitecture As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {applicationName}.application, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture=", "")
+            Dim fullApplicationName As String = ""
 
-            Dim textualSubId As String = $"{applicationName}.application, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture={processorArchitecture}"
+            If uninstallString.Contains($"{applicationName}.application") Then
+                fullApplicationName = $"{applicationName}.application"
+            Else
+                fullApplicationName = $"{applicationName}.app"
+            End If
+
+            Dim publicKeyToken As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {fullApplicationName}, Culture=neutral, PublicKeyToken=", "")
+            publicKeyToken = publicKeyToken.Substring(0, publicKeyToken.IndexOf(","))
+            Dim processorArchitecture As String = uninstallString.Replace($"rundll32.exe dfshim.dll,ShArpMaintain {fullApplicationName}, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture=", "")
+
+            Dim textualSubId As String = $"{fullApplicationName}, Culture=neutral, PublicKeyToken={publicKeyToken}, processorArchitecture={processorArchitecture}"
             Dim deploymentServiceCom As New System.Deployment.Application.DeploymentServiceCom()
             Dim _r_m_GetSubscriptionState As Reflection.MethodInfo = GetType(System.Deployment.Application.DeploymentServiceCom).GetMethod("GetSubscriptionState", System.Reflection.BindingFlags.NonPublic Or System.Reflection.BindingFlags.Instance)
             Dim subState As Object = _r_m_GetSubscriptionState.Invoke(deploymentServiceCom, New Object() {textualSubId})
