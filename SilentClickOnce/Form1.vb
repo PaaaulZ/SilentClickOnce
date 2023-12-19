@@ -102,7 +102,7 @@ Public Class Form1
 
     End Sub
 
-Private Sub Uninstall(ByVal applicationName As String)
+    Private Sub Uninstall(ByVal applicationName As String)
 
         ' Kill process if open
         Try
@@ -111,12 +111,23 @@ Private Sub Uninstall(ByVal applicationName As String)
                 Exit For
             Next
 
-            Dim uninstallString As String = GetUninstallCommand(applicationName)
             Dim fullApplicationName As String = ""
+            Dim uninstallString As String = GetUninstallCommand(applicationName)
 
             If IsNothing(uninstallString) Then
-                WriteLog($"[-] Application '{applicationName}' not found in registry")
-                Environment.Exit(1)
+                WriteLog($"[-] Application '{applicationName}' not found in registry, trying all users")
+                Dim userSIDs As ArrayList = getAvailableUsersSID()
+                For Each userSID In userSIDs
+                    uninstallString = GetUninstallCommand(applicationName, userSID)
+                    If Not IsNothing(uninstallString) Then
+                        Exit For
+                    End If
+                Next
+
+                If IsNothing(uninstallString) Then
+                    WriteLog($"[-] Application '{applicationName}' still not found in registry")
+                    Environment.Exit(1)
+                End If
             End If
 
             If uninstallString.Contains($"{applicationName}.application") Then
@@ -159,11 +170,32 @@ Private Sub Uninstall(ByVal applicationName As String)
         End Try
     End Sub
 
-    Private Function GetUninstallCommand(ByVal applicationName As String)
+    Private Function getAvailableUsersSID()
+
+        Dim sids As New ArrayList
+
+        Dim keys() As String = Registry.Users.GetSubKeyNames()
+        For Each key In keys
+            If key.Length > 8 And Not key.Contains("_Classes") Then
+                sids.Add(key)
+            End If
+        Next
+
+        Return sids
+
+    End Function
+
+    Private Function GetUninstallCommand(ByVal applicationName As String, Optional ByVal userSID As String = "")
 
         ' Search for the uninstall string in the Windows registry
 
-        Dim key As RegistryKey = Registry.CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Uninstall")
+        Dim key As RegistryKey = Nothing
+
+        If userSID = "" Then
+            key = Registry.CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Uninstall")
+        Else
+            key = Registry.Users.OpenSubKey($"{userSID}\Software\Microsoft\Windows\CurrentVersion\Uninstall")
+        End If
 
         If key Is Nothing Then
             Return "NO_SUBKEYS"
