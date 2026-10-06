@@ -1,26 +1,54 @@
 # SilentClickOnce
-Install/Uninstall ClickOnce without prompting the user
+[![GitHub license](https://img.shields.io/github/license/PaaaulZ/SilentClickOnce)](https://github.com/PaaaulZ/SilentClickOnce/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/PaaaulZ/SilentClickOnce)](https://github.com/PaaaulZ/SilentClickOnce/releases)
+[![GitHub stars](https://img.shields.io/github/stars/PaaaulZ/SilentClickOnce)](https://github.com/PaaaulZ/SilentClickOnce/stargazers)
 
-### Need to install or uninstall a ClickOnce .application without prompting the user? Maybe you want to manage your application using your DC and you can't because ClickOnce needs the user to press "Install/Uninstall"? SilentClickOnce is what you need.
+Silently install and uninstall ClickOnce applications from the command line.
 
-Microsoft supports installing ClickOnce .application files silently by using a custom installer as noted in [the Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019).
-Well, this is just a custom installer ready to use, nothing special.
+Designed for unattended deployments, scripts, Active Directory environments and enterprise software distribution.
 
-## How can I use it?
+## Features
 
-Simply compile this, call it from a command line and pipe the output to a file to see what's happening.
+- Silent ClickOnce installation
+- Silent ClickOnce uninstallation
+- Command-line interface
+- Works with `.application` deployment manifests
+- Suitable for scripts and unattended deployments
+- No user interaction required
+- Lightweight standalone executable
 
-Install example: **SilentClickOnce.exe -i "\\\\192.168.1.2\\apps\\MyApp\\MyApp.application" > MyApp.log**
-Uninstall example: **SilentClickOnce.exe -u MyApp > MyApp.log**
+## Requirements
 
-Don't want to compile or can't? Download the release [here on GitHub](https://github.com/PaaaulZ/SilentClickOnce/releases/) and download the ready to use file.
+- .NET Framework 4.5
 
-## Why is this special?
+## Usage
 
-This is nothing special. I made this for me to use and made it public because people around the internet keep saying that you can't silently install a ClickOnce. Someone even said that only malware installs silently completely forgetting that maybe you want to push an internal use application to every client in your company domain.
-If you stumble on someone saying you can't I hope you'll end up here and solve your problem with a quick and simple solution.
+### Install ClickOnce application
 
+```cmd
+SilentClickOnce.exe -i "\\192.168.1.2\apps\MyApp\MyApp.application" > MyApp.log
+```
 
-For every information check on [the Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019). 
+### Uninstall ClickOnce application
 
-If you don't trust this or you want to make it yourself check [the Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019), the code is almost the same.
+```cmd
+SilentClickOnce.exe -u MyApp > MyApp.log
+```
+
+## How it works
+
+ClickOnce normally expects user interaction during installation and removal.
+
+SilentClickOnce provides a small command-line wrapper around the ClickOnce deployment APIs, making it possible to perform these operations from scripts and automated deployment systems.
+
+Typical use cases include:
+
+- Enterprise software deployment
+- Active Directory / domain environments
+- Login scripts
+- Software distribution systems
+- Automated installation and removal
+
+## References
+
+[Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/deployment/walkthrough-creating-a-custom-installer-for-a-clickonce-application?view=vs-2019)
